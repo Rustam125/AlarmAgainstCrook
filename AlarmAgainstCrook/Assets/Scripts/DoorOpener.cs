@@ -13,22 +13,15 @@ public class DoorOpener : MonoBehaviour
 
     private void Update()
     {
-        switch (_hasOpener)
+        if (_hasOpener && Input.GetKeyDown(KeyCode.E))
         {
-            case false:
-                return;
-            case true when Input.GetKeyDown(KeyCode.E):
+            if (_door.IsOpened)
             {
-                if (_door.IsOpened)
-                {
-                    Close();
-                }
-                else
-                {
-                    Open();
-                }
-
-                break;
+                Close();
+            }
+            else
+            {
+                Open();
             }
         }
     }

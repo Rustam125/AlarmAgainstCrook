@@ -4,11 +4,11 @@ using UnityEngine;
 [RequireComponent(typeof(Collider))]
 public class Alarm : MonoBehaviour
 {
-    [SerializeField] private AudioSource _audioSource;
-
     private const float MinVolume = 0f;
     private const float MaxVolume = 1f;
     private const float Duration = 0.5f;
+    
+    [SerializeField] private AudioSource _audioSource;
 
     private bool _isSignalized;
     private Coroutine _coroutine;
@@ -29,11 +29,6 @@ public class Alarm : MonoBehaviour
         Signalize();
     }
 
-    private void OnDestroy()
-    {
-        StopSignalCoroutine();
-    }
-
     private void Signalize()
     {
         StopSignalCoroutine();
@@ -42,34 +37,25 @@ public class Alarm : MonoBehaviour
         {
             _audioSource.volume = MinVolume;
             _audioSource.Play();
-            _coroutine = StartCoroutine(SmoothSignalIncrease());
+            _coroutine = StartCoroutine(SmoothVolumeChange(true));
         }
         else
         {
-            _coroutine = StartCoroutine(SmoothSignalReduce());
+            _coroutine = StartCoroutine(SmoothVolumeChange(false));
         }
     }
-
-    private IEnumerator SmoothSignalIncrease()
+    
+    private IEnumerator SmoothVolumeChange(bool zoomIn)
     {
-        var volume = MinVolume;
+        var volume = zoomIn ? MinVolume : MaxVolume;
+        var isNotReachedValue = true;
 
-        while (volume < MaxVolume)
+        while (isNotReachedValue)
         {
-            volume += Time.deltaTime * Duration;
+            var duration = Time.deltaTime * Duration;
+            volume += zoomIn ? duration : duration * -1;
             _audioSource.volume = volume;
-            yield return null;
-        }
-    }
-
-    private IEnumerator SmoothSignalReduce()
-    {
-        var volume = MaxVolume;
-
-        while (volume > MinVolume)
-        {
-            volume -= Time.deltaTime * Duration;
-            _audioSource.volume = volume;
+            isNotReachedValue = zoomIn ? volume < MaxVolume : volume > MinVolume;
             yield return null;
         }
     }

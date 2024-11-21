@@ -1,7 +1,6 @@
 using System.Collections;
 using UnityEngine;
 
-[RequireComponent(typeof(Collider))]
 public class Alarm : MonoBehaviour
 {
     private const float MinVolume = 0f;
@@ -10,39 +9,20 @@ public class Alarm : MonoBehaviour
     
     [SerializeField] private AudioSource _audioSource;
 
-    private bool _isSignalized;
     private Coroutine _coroutine;
 
-    private void Awake()
-    {
-        _isSignalized = false;
-    }
-
-    private void OnTriggerEnter(Collider other)
-    {
-        if (other.GetComponent<Player>() == false)
-        {
-            return;
-        }
-
-        _isSignalized = !_isSignalized;
-        Signalize();
-    }
-
-    private void Signalize()
+    public void TurnOn()
     {
         StopSignalCoroutine();
-
-        if (_isSignalized)
-        {
-            _audioSource.volume = MinVolume;
-            _audioSource.Play();
-            _coroutine = StartCoroutine(SmoothVolumeChange(true));
-        }
-        else
-        {
-            _coroutine = StartCoroutine(SmoothVolumeChange(false));
-        }
+        _audioSource.volume = MinVolume;
+        _audioSource.Play();
+        _coroutine = StartCoroutine(SmoothVolumeChange(true));
+    }
+    
+    public void TurnOff()
+    {
+        StopSignalCoroutine();
+        _coroutine = StartCoroutine(SmoothVolumeChange(false));
     }
     
     private IEnumerator SmoothVolumeChange(bool zoomIn)
